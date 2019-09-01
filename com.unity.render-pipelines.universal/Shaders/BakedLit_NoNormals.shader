@@ -5,7 +5,7 @@ Shader "Universal Render Pipeline/Baked Lit"
         _BaseMap("Texture", 2D) = "white" {}
         _BaseColor("Color", Color) = (1, 1, 1, 1)
         _Cutoff("AlphaCutout", Range(0.0, 1.0)) = 0.5
-        _BumpMap("Normal Map", 2D) = "bump" {}
+        //_BumpMap("Normal Map", 2D) = "bump" {}
 
         // BlendMode
         [HideInInspector] _Surface("__surface", Float) = 0.0
@@ -71,10 +71,10 @@ Shader "Universal Render Pipeline/Baked Lit"
                 float3 uv0AndFogCoord           : TEXCOORD0; // xy: uv0, z: fogCoord
                 DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
                 half3 normal                    : TEXCOORD2;
-    #if defined(_NORMALMAP)
-                half3 tangent                   : TEXCOORD3;
-                half3 bitangent                 : TEXCOORD4;
-    #endif
+    //#if defined(_NORMALMAP)
+    //            half3 tangent                   : TEXCOORD3;
+    //            half3 bitangent                 : TEXCOORD4;
+    //#endif
                 float4 vertex : SV_POSITION;
 
                 UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -96,10 +96,10 @@ Shader "Universal Render Pipeline/Baked Lit"
 
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
                 output.normal = normalInput.normalWS;
-    #if defined(_NORMALMAP)
-                output.tangent = normalInput.tangentWS;
-                output.bitangent = normalInput.bitangentWS;
-    #endif
+    //#if defined(_NORMALMAP)
+    //            output.tangent = normalInput.tangentWS;
+    //            output.bitangent = normalInput.bitangentWS;
+    //#endif
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normal, output.vertexSH);
 
@@ -121,12 +121,12 @@ Shader "Universal Render Pipeline/Baked Lit"
                 color *= alpha;
 #endif
 
-    #if defined(_NORMALMAP)
-                half3 normalTS = SampleNormal(uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap)).xyz;
-                half3 normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangent, input.bitangent, input.normal));
-    #else
+    //#if defined(_NORMALMAP)
+    //            half3 normalTS = SampleNormal(uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap)).xyz;
+    //            half3 normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangent, input.bitangent, input.normal));
+    //#else
                 half3 normalWS = input.normal;
-    #endif
+    //#endif
                 normalWS = NormalizeNormalPerPixel(normalWS);
                 color *= SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
                 color = MixFog(color, input.uv0AndFogCoord.z);
