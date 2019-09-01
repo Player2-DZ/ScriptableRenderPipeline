@@ -71,10 +71,7 @@ Shader "Universal Render Pipeline/Baked Lit"
                 float3 uv0AndFogCoord           : TEXCOORD0; // xy: uv0, z: fogCoord
                 DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
                 half3 normal                    : TEXCOORD2;
-    #if defined(_NORMALMAP)
-                half3 tangent                   : TEXCOORD3;
-                half3 bitangent                 : TEXCOORD4;
-    #endif
+    #i          //p2
                 float4 vertex : SV_POSITION;
 
                 UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -93,13 +90,9 @@ Shader "Universal Render Pipeline/Baked Lit"
                 output.vertex = vertexInput.positionCS;
                 output.uv0AndFogCoord.xy = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.uv0AndFogCoord.z = ComputeFogFactor(vertexInput.positionCS.z);
-
+                //use more efficient func? p2
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                output.normal = normalInput.normalWS;
-    #if defined(_NORMALMAP)
-                output.tangent = normalInput.tangentWS;
-                output.bitangent = normalInput.bitangentWS;
-    #endif
+                output.normal = normalInput.normalWS; //p2
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normal, output.vertexSH);
 
@@ -120,13 +113,8 @@ Shader "Universal Render Pipeline/Baked Lit"
 #ifdef _ALPHAPREMULTIPLY_ON
                 color *= alpha;
 #endif
-
-    #if defined(_NORMALMAP)
-                half3 normalTS = SampleNormal(uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap)).xyz;
-                half3 normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangent, input.bitangent, input.normal));
-    #else
+               //p2
                 half3 normalWS = input.normal;
-    #endif
                 normalWS = NormalizeNormalPerPixel(normalWS);
                 color *= SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
                 color = MixFog(color, input.uv0AndFogCoord.z);
